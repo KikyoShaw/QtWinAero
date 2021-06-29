@@ -1,5 +1,9 @@
 #pragma once
 
+#include <QtWinExtras>
+#include <Windows.h>
+#include <dwmapi.h>
+
 typedef enum _WINDOWCOMPOSITIONATTRIB
 {
 	WCA_UNDEFINED = 0,

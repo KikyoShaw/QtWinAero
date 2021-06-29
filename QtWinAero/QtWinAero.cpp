@@ -11,6 +11,8 @@
 
 #pragma comment (lib,"user32.lib")
 
+#pragma comment (lib,"Dwmapi.lib")
+
 #include <QtWin>
 
 QtWinAero::QtWinAero(QWidget *parent)
@@ -26,28 +28,28 @@ QtWinAero::QtWinAero(QWidget *parent)
 	connect(m_mainframe, SIGNAL(setAlph(int)), this, SLOT(sltSetAlph(int)));
 	//setStyleSheet("border-radius:10px;");
 
-	//setAttribute(Qt::WA_TranslucentBackground);
-	//setWindowFlags(/*Qt::Dialog|*/Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	setAttribute(Qt::WA_TranslucentBackground);
+	setWindowFlags(/*Qt::Dialog|*/Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
-	//返回DWM组合状态(win7下的毛玻璃)
-	if (QtWin::isCompositionEnabled()) {
-		//玻璃效果
-		QtWin::extendFrameIntoClientArea(this, -1, -1, -1, -1);
-		//半透明背景
-		setAttribute(Qt::WA_TranslucentBackground, true);
-		//禁用无背景
-		setAttribute(Qt::WA_NoSystemBackground, false);
-		setStyleSheet("background: transparent;");
-	}
-	else
-	{
-		QtWin::resetExtendedFrame(this);
-		ui.frame->setAttribute(Qt::WA_TranslucentBackground, false);
-		setStyleSheet(QString("background: %1;").arg(QtWin::realColorizationColor().name()));
-	}
+	////返回DWM组合状态(win7下的毛玻璃)
+	//if (QtWin::isCompositionEnabled()) {
+	//	//玻璃效果
+	//	QtWin::extendFrameIntoClientArea(this, -1, -1, -1, -1);
+	//	//半透明背景
+	//	setAttribute(Qt::WA_TranslucentBackground, true);
+	//	//禁用无背景
+	//	setAttribute(Qt::WA_NoSystemBackground, false);
+	//	setStyleSheet("background: transparent;");
+	//}
+	//else
+	//{
+	//	QtWin::resetExtendedFrame(this);
+	//	ui.frame->setAttribute(Qt::WA_TranslucentBackground, false);
+	//	setStyleSheet(QString("background: %1;").arg(QtWin::realColorizationColor().name()));
+	//}
 
 	//win10下的毛玻璃
-	/*HWND hWnd = HWND(winId());
+	HWND hWnd = HWND(winId());
 	HMODULE hUser = GetModuleHandle(L"user32.dll");
 	if (hUser)
 	{
@@ -61,7 +63,17 @@ QtWinAero::QtWinAero(QWidget *parent)
 			data.cbData = sizeof(accent);
 			setWindowCompositionAttribute(hWnd, &data);
 		}
-	}*/
+	}
+
+	BOOL bEnable = false;
+	::DwmIsCompositionEnabled(&bEnable);
+	if (bEnable)
+	{
+		DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
+		::DwmSetWindowAttribute((HWND)winId(), DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+		MARGINS margins = { -1 };
+		::DwmExtendFrameIntoClientArea((HWND)winId(), &margins);
+	}
 	
 	connect(ui.pushButton_close, &QPushButton::clicked, this, [=]() {
 		qApp->exit();
@@ -94,11 +106,11 @@ void QtWinAero::sltSetAlph(int alph)
 
 void QtWinAero::paintEvent(QPaintEvent *)
 {
-	//QPainter painter(this);
-	//painter.setRenderHint(QPainter::Antialiasing);
-	//painter.setPen(Qt::NoPen);
-	//painter.setBrush(m_bgColor);
-	//painter.drawRoundedRect(rect(), 20, 20);
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(m_bgColor);
+	painter.drawRoundedRect(rect(), 20, 20);
 }
 
 void QtWinAero::mouseMoveEvent(QMouseEvent * event)
