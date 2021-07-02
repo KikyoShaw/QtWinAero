@@ -9,6 +9,7 @@
 #include <QBitmap>
 #include <QColorDialog>
 
+#include <tchar.h>
 #include "dwmapi.h"
 
 #pragma comment (lib,"user32.lib")
@@ -16,6 +17,26 @@
 #pragma comment (lib,"Dwmapi.lib")
 
 #include <QtWin>
+
+static bool IsWin10System()
+{
+	//string与CString转换
+	//string sPath = (LPCSTR)(CStringA)(strPath);
+	std::string vname;
+	// 先判断是否为win8.1或win10
+	typedef void(__stdcall*NTPROC)(DWORD*, DWORD*, DWORD*);
+	HINSTANCE hinst = LoadLibrary(_T("ntdll.dll"));
+	DWORD dwMajor, dwMinor, dwBuildNumber;
+	NTPROC proc = (NTPROC)GetProcAddress(hinst, "RtlGetNtVersionNumbers");
+	proc(&dwMajor, &dwMinor, &dwBuildNumber);
+
+	if (dwMajor == 10 && dwMinor == 0)
+	{
+		return true;
+	}
+
+	return false;
+}
 
 QtWinAero::QtWinAero(QWidget *parent)
     : QDialog(parent)
@@ -50,22 +71,34 @@ QtWinAero::QtWinAero(QWidget *parent)
 	//	setStyleSheet(QString("background: %1;").arg(QtWin::realColorizationColor().name()));
 	//}
 
-	//win10下的毛玻璃
-	//HWND hWnd = HWND(winId());
-	//HMODULE hUser = GetModuleHandle(L"user32.dll");
-	//if (hUser)
-	//{
-	//	pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
-	//	if (setWindowCompositionAttribute)
-	//	{
-	//		ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
-	//		WINDOWCOMPOSITIONATTRIBDATA data;
-	//		data.Attrib = WCA_ACCENT_POLICY;
-	//		data.pvData = &accent;
-	//		data.cbData = sizeof(accent);
-	//		setWindowCompositionAttribute(hWnd, &data);
-	//	}
-	//}
+	//判断是不是win10
+	//if (IsWin10System()) {
+	if(QSysInfo::windowsVersion() == QSysInfo::WV_10_0){
+		//win10下的毛玻璃
+		HWND hWnd = HWND(winId());
+		HMODULE hUser = GetModuleHandle(L"user32.dll");
+		if (hUser)
+		{
+			pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
+			if (setWindowCompositionAttribute)
+			{
+				ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
+				WINDOWCOMPOSITIONATTRIBDATA data;
+				data.Attrib = WCA_ACCENT_POLICY;
+				data.pvData = &accent;
+				data.cbData = sizeof(accent);
+				setWindowCompositionAttribute(hWnd, &data);
+			}
+		}
+	}
+	else if(QSysInfo::windowsVersion() == QSysInfo::WV_6_1) {
+		//win7改进版 毛玻璃特效
+		DWM_BLURBEHIND bb = { 0 };
+		bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+		bb.fEnable = true;
+		bb.hRgnBlur = NULL;
+		DwmEnableBlurBehindWindow((HWND)winId(), &bb);
+	}
 
 	//该方法在win7下有瑕疵，点击出其他窗口后，该窗口的毛玻璃特效会失效
 	//BOOL bEnable = false;
@@ -77,13 +110,6 @@ QtWinAero::QtWinAero(QWidget *parent)
 	//	MARGINS margins = { -1 };
 	//	::DwmExtendFrameIntoClientArea((HWND)winId(), &margins);
 	//}
-
-	//win7改进版 毛玻璃特效
-	DWM_BLURBEHIND bb = { 0 };
-	bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-	bb.fEnable = true;
-	bb.hRgnBlur = NULL;
-	DwmEnableBlurBehindWindow((HWND)winId(), &bb);
 
 	//模糊部分地方
 	//MARGINS margins = { 50, 50, 50, 50 };
