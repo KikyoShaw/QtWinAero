@@ -9,6 +9,8 @@
 #include <QBitmap>
 #include <QColorDialog>
 
+#include "dwmapi.h"
+
 #pragma comment (lib,"user32.lib")
 
 #pragma comment (lib,"Dwmapi.lib")
@@ -49,31 +51,43 @@ QtWinAero::QtWinAero(QWidget *parent)
 	//}
 
 	//win10下的毛玻璃
-	HWND hWnd = HWND(winId());
-	HMODULE hUser = GetModuleHandle(L"user32.dll");
-	if (hUser)
-	{
-		pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
-		if (setWindowCompositionAttribute)
-		{
-			ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
-			WINDOWCOMPOSITIONATTRIBDATA data;
-			data.Attrib = WCA_ACCENT_POLICY;
-			data.pvData = &accent;
-			data.cbData = sizeof(accent);
-			setWindowCompositionAttribute(hWnd, &data);
-		}
-	}
+	//HWND hWnd = HWND(winId());
+	//HMODULE hUser = GetModuleHandle(L"user32.dll");
+	//if (hUser)
+	//{
+	//	pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
+	//	if (setWindowCompositionAttribute)
+	//	{
+	//		ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
+	//		WINDOWCOMPOSITIONATTRIBDATA data;
+	//		data.Attrib = WCA_ACCENT_POLICY;
+	//		data.pvData = &accent;
+	//		data.cbData = sizeof(accent);
+	//		setWindowCompositionAttribute(hWnd, &data);
+	//	}
+	//}
 
-	BOOL bEnable = false;
-	::DwmIsCompositionEnabled(&bEnable);
-	if (bEnable)
-	{
-		DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
-		::DwmSetWindowAttribute((HWND)winId(), DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
-		MARGINS margins = { -1 };
-		::DwmExtendFrameIntoClientArea((HWND)winId(), &margins);
-	}
+	//该方法在win7下有瑕疵，点击出其他窗口后，该窗口的毛玻璃特效会失效
+	//BOOL bEnable = false;
+	//::DwmIsCompositionEnabled(&bEnable);
+	//if (bEnable)
+	//{
+	//	DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
+	//	::DwmSetWindowAttribute((HWND)winId(), DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+	//	MARGINS margins = { -1 };
+	//	::DwmExtendFrameIntoClientArea((HWND)winId(), &margins);
+	//}
+
+	//win7改进版 毛玻璃特效
+	DWM_BLURBEHIND bb = { 0 };
+	bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+	bb.fEnable = true;
+	bb.hRgnBlur = NULL;
+	DwmEnableBlurBehindWindow((HWND)winId(), &bb);
+
+	//模糊部分地方
+	//MARGINS margins = { 50, 50, 50, 50 };
+	//DwmExtendFrameIntoClientArea(hWnd, &margins);
 	
 	connect(ui.pushButton_close, &QPushButton::clicked, this, [=]() {
 		qApp->exit();
