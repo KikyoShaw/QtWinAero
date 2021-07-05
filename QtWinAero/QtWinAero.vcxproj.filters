@@ -43,9 +43,15 @@
     <ClCompile Include="mainframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DarkenEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainframe.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DarkenEffect.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

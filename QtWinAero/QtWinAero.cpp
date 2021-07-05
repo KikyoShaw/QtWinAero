@@ -17,6 +17,7 @@
 #pragma comment (lib,"Dwmapi.lib")
 
 #include <QtWin>
+#include "DarkenEffect.h"
 
 static bool IsWin10System()
 {
@@ -43,8 +44,8 @@ QtWinAero::QtWinAero(QWidget *parent)
 {
     ui.setupUi(this);
 
-	m_bgColor = QColor(255, 180, 180, 50);
-	m_alph = 50;
+	//m_bgColor = QColor(255, 180, 180, 50);
+	//m_alph = 50;
 
 	m_mainframe = new mainframe();
 	connect(m_mainframe, SIGNAL(chBgColor(QColor)), this, SLOT(sltChBgColor(QColor)));
@@ -52,7 +53,15 @@ QtWinAero::QtWinAero(QWidget *parent)
 	//setStyleSheet("border-radius:10px;");
 
 	setAttribute(Qt::WA_TranslucentBackground);
-	setWindowFlags(/*Qt::Dialog|*/Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	setWindowFlags(/*Qt::Dialog|*/ Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+
+	DarkenEffect *bodyShadow = new DarkenEffect();
+	bodyShadow->setBlurRadius(200);
+	//bodyShadow->setDistance(6.0);
+	//bodyShadow->setColor(QColor(21, 32, 52, 100));
+	ui.frame->setGraphicsEffect(bodyShadow);
+
+	//setGraphicsEffect(new DarkenEffect);
 
 	////返回DWM组合状态(win7下的毛玻璃)
 	//if (QtWin::isCompositionEnabled()) {
@@ -73,32 +82,32 @@ QtWinAero::QtWinAero(QWidget *parent)
 
 	//判断是不是win10
 	//if (IsWin10System()) {
-	if(QSysInfo::windowsVersion() == QSysInfo::WV_10_0){
-		//win10下的毛玻璃
-		HWND hWnd = HWND(winId());
-		HMODULE hUser = GetModuleHandle(L"user32.dll");
-		if (hUser)
-		{
-			pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
-			if (setWindowCompositionAttribute)
-			{
-				ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
-				WINDOWCOMPOSITIONATTRIBDATA data;
-				data.Attrib = WCA_ACCENT_POLICY;
-				data.pvData = &accent;
-				data.cbData = sizeof(accent);
-				setWindowCompositionAttribute(hWnd, &data);
-			}
-		}
-	}
-	else if(QSysInfo::windowsVersion() == QSysInfo::WV_6_1) {
-		//win7改进版 毛玻璃特效
-		DWM_BLURBEHIND bb = { 0 };
-		bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-		bb.fEnable = true;
-		bb.hRgnBlur = NULL;
-		DwmEnableBlurBehindWindow((HWND)winId(), &bb);
-	}
+	//if(QSysInfo::windowsVersion() == QSysInfo::WV_10_0){
+	//	//win10下的毛玻璃
+	//	HWND hWnd = HWND(winId());
+	//	HMODULE hUser = GetModuleHandle(L"user32.dll");
+	//	if (hUser)
+	//	{
+	//		pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
+	//		if (setWindowCompositionAttribute)
+	//		{
+	//			ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
+	//			WINDOWCOMPOSITIONATTRIBDATA data;
+	//			data.Attrib = WCA_ACCENT_POLICY;
+	//			data.pvData = &accent;
+	//			data.cbData = sizeof(accent);
+	//			setWindowCompositionAttribute(hWnd, &data);
+	//		}
+	//	}
+	//}
+	//else if(QSysInfo::windowsVersion() == QSysInfo::WV_6_1) {
+	//	//win7改进版 毛玻璃特效
+	//	DWM_BLURBEHIND bb = { 0 };
+	//	bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+	//	bb.fEnable = true;
+	//	bb.hRgnBlur = NULL;
+	//	DwmEnableBlurBehindWindow((HWND)winId(), &bb);
+	//}
 
 	//该方法在win7下有瑕疵，点击出其他窗口后，该窗口的毛玻璃特效会失效
 	//BOOL bEnable = false;
@@ -146,11 +155,11 @@ void QtWinAero::sltSetAlph(int alph)
 
 void QtWinAero::paintEvent(QPaintEvent *)
 {
-	QPainter painter(this);
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setPen(Qt::NoPen);
-	painter.setBrush(m_bgColor);
-	painter.drawRoundedRect(rect(), 20, 20);
+	//QPainter painter(this);
+	//painter.setRenderHint(QPainter::Antialiasing);
+	//painter.setPen(Qt::NoPen);
+	//painter.setBrush(m_bgColor);
+	//painter.drawRoundedRect(rect(), 20, 20);
 }
 
 void QtWinAero::mouseMoveEvent(QMouseEvent * event)

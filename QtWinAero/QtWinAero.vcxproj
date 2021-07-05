@@ -89,6 +89,7 @@
     <QtUic Include="mainframe.ui" />
     <QtUic Include="QtWinAero.ui" />
     <QtMoc Include="QtWinAero.h" />
+    <ClCompile Include="DarkenEffect.cpp" />
     <ClCompile Include="mainframe.cpp" />
     <ClCompile Include="QtWinAero.cpp" />
     <ClCompile Include="main.cpp" />
@@ -97,6 +98,7 @@
     <QtMoc Include="mainframe.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="DarkenEffect.h" />
     <ClInclude Include="WindowCompositionAttribute.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

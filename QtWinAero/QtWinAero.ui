@@ -32,9 +32,10 @@
    <item row="0" column="0">
     <widget class="QFrame" name="frame">
      <property name="styleSheet">
-      <string notr="true">#frame{
-border-radius:20px;
-background: rgba(21, 32, 52, 0.8);
+      <string notr="true">#frame
+{
+	background-color: rgba(21, 32, 52, 0.95);
+	border-radius:8px;
 }</string>
      </property>
      <property name="frameShape">
@@ -65,11 +66,14 @@ background: rgba(21, 32, 52, 0.8);
      <widget class="QPushButton" name="pushButton">
       <property name="geometry">
        <rect>
-        <x>280</x>
-        <y>20</y>
+        <x>290</x>
+        <y>10</y>
         <width>75</width>
-        <height>41</height>
+        <height>51</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(62, 255, 33);</string>
       </property>
       <property name="text">
        <string>换肤</string>
