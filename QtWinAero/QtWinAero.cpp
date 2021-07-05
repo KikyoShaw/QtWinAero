@@ -44,7 +44,7 @@ QtWinAero::QtWinAero(QWidget *parent)
 {
     ui.setupUi(this);
 
-	//m_bgColor = QColor(255, 180, 180, 50);
+	m_bgColor = QColor(255, 180, 180, 50);
 	//m_alph = 50;
 
 	m_mainframe = new mainframe();
@@ -55,59 +55,65 @@ QtWinAero::QtWinAero(QWidget *parent)
 	setAttribute(Qt::WA_TranslucentBackground);
 	setWindowFlags(/*Qt::Dialog|*/ Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
-	DarkenEffect *bodyShadow = new DarkenEffect();
-	bodyShadow->setBlurRadius(200);
+	//DarkenEffect *bodyShadow = new DarkenEffect();
+	//bodyShadow->setBlurRadius(200);
 	//bodyShadow->setDistance(6.0);
 	//bodyShadow->setColor(QColor(21, 32, 52, 100));
-	ui.frame->setGraphicsEffect(bodyShadow);
+	//ui.frame->setGraphicsEffect(bodyShadow);
 
 	//setGraphicsEffect(new DarkenEffect);
 
-	////返回DWM组合状态(win7下的毛玻璃)
-	//if (QtWin::isCompositionEnabled()) {
-	//	//玻璃效果
-	//	QtWin::extendFrameIntoClientArea(this, -1, -1, -1, -1);
-	//	//半透明背景
-	//	setAttribute(Qt::WA_TranslucentBackground, true);
-	//	//禁用无背景
-	//	setAttribute(Qt::WA_NoSystemBackground, false);
-	//	setStyleSheet("background: transparent;");
-	//}
-	//else
-	//{
-	//	QtWin::resetExtendedFrame(this);
-	//	ui.frame->setAttribute(Qt::WA_TranslucentBackground, false);
-	//	setStyleSheet(QString("background: %1;").arg(QtWin::realColorizationColor().name()));
-	//}
+	//返回DWM组合状态(win7下的毛玻璃)
+	//https://doc.qt.io/qt-5/qtwinextras-overview.html
+	if (QtWin::isCompositionEnabled()) {
+		//去边框
+		QtWin::enableBlurBehindWindow(this);
+		//玻璃效果
+		QtWin::extendFrameIntoClientArea(this, -1, -1, -1, -1);
+		//半透明背景
+		setAttribute(Qt::WA_TranslucentBackground, true);
+		//禁用无背景
+		setAttribute(Qt::WA_NoSystemBackground, false);
+		setStyleSheet("background: transparent;");
+	}
+	else
+	{
+		QtWin::resetExtendedFrame(this);
+		ui.frame->setAttribute(Qt::WA_TranslucentBackground, false);
+		setStyleSheet(QString("background: %1;").arg(QtWin::realColorizationColor().name()));
+	}
 
 	//判断是不是win10
 	//if (IsWin10System()) {
-	//if(QSysInfo::windowsVersion() == QSysInfo::WV_10_0){
-	//	//win10下的毛玻璃
-	//	HWND hWnd = HWND(winId());
-	//	HMODULE hUser = GetModuleHandle(L"user32.dll");
-	//	if (hUser)
-	//	{
-	//		pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
-	//		if (setWindowCompositionAttribute)
-	//		{
-	//			ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
-	//			WINDOWCOMPOSITIONATTRIBDATA data;
-	//			data.Attrib = WCA_ACCENT_POLICY;
-	//			data.pvData = &accent;
-	//			data.cbData = sizeof(accent);
-	//			setWindowCompositionAttribute(hWnd, &data);
-	//		}
-	//	}
-	//}
-	//else if(QSysInfo::windowsVersion() == QSysInfo::WV_6_1) {
-	//	//win7改进版 毛玻璃特效
-	//	DWM_BLURBEHIND bb = { 0 };
-	//	bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-	//	bb.fEnable = true;
-	//	bb.hRgnBlur = NULL;
-	//	DwmEnableBlurBehindWindow((HWND)winId(), &bb);
-	//}
+	if(QSysInfo::windowsVersion() == QSysInfo::WV_10_0){
+		//win10下的毛玻璃
+		HWND hWnd = HWND(winId());
+		HMODULE hUser = GetModuleHandle(L"user32.dll");
+		if (hUser)
+		{
+			pfnSetWindowCompositionAttribute setWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
+			if (setWindowCompositionAttribute)
+			{
+				ACCENT_POLICY accent = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
+				WINDOWCOMPOSITIONATTRIBDATA data;
+				data.Attrib = WCA_ACCENT_POLICY;
+				data.pvData = &accent;
+				data.cbData = sizeof(accent);
+				setWindowCompositionAttribute(hWnd, &data);
+			}
+		}
+	}
+	else if(QSysInfo::windowsVersion() == QSysInfo::WV_6_1) {
+		//win7改进版 毛玻璃特效
+		//DWM_BLURBEHIND bb = { 0 };
+		//bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+		//bb.fEnable = true;
+		//bb.hRgnBlur = NULL;
+		//DwmEnableBlurBehindWindow((HWND)winId(), &bb);
+
+		//MARGINS margins = { 50, 50, 50, 50 };
+		//DwmExtendFrameIntoClientArea((HWND)winId(), &margins);
+	}
 
 	//该方法在win7下有瑕疵，点击出其他窗口后，该窗口的毛玻璃特效会失效
 	//BOOL bEnable = false;
@@ -155,11 +161,11 @@ void QtWinAero::sltSetAlph(int alph)
 
 void QtWinAero::paintEvent(QPaintEvent *)
 {
-	//QPainter painter(this);
-	//painter.setRenderHint(QPainter::Antialiasing);
-	//painter.setPen(Qt::NoPen);
-	//painter.setBrush(m_bgColor);
-	//painter.drawRoundedRect(rect(), 20, 20);
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(m_bgColor);
+	painter.drawRoundedRect(rect(), 20, 20);
 }
 
 void QtWinAero::mouseMoveEvent(QMouseEvent * event)
