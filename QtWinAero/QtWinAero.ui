@@ -34,8 +34,8 @@
      <property name="styleSheet">
       <string notr="true">#frame
 {
-	/*background-color: rgba(21, 32, 52, 0.95);*/
-	border-radius:8px;
+	background-color: rgba(21, 32, 52, 0.8);
+	border-radius:10px;
 }</string>
      </property>
      <property name="frameShape">
